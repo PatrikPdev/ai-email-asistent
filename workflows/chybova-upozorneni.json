@@ -1,0 +1,70 @@
+{
+  "name": "Chybová upozornění",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2842776e-08d9-4416-bb14-e4f10c6900b2",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=⚠️ Automatizace spadla! Workflow: {{ $json.workflow.name }} Krok, kde to spadlo: {{ $json.execution.lastNodeExecuted }} Chyba: {{ $json.execution.error.message }} Detail: {{ $json.execution.url }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c408e4ec-22ed-450e-93bb-74f60d627494",
+      "name": "Send a message",
+      "webhookId": "5b5ac812-2d67-4e3a-9623-195e2b62f466",
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2262560e-8f96-4591-b300-f963d1df5647",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "Zz572tsyBPr9Zzm2",
+  "tags": []
+}
