@@ -11,7 +11,6 @@ Každý příchozí e-mail během několika vteřin:
 
 ![Workflow](screenshots/workflow.webp)
 
-▶️ **Video ukázka:** _doplním_
 
 ## Jak to funguje
 
@@ -56,7 +55,7 @@ Kategorie, jazyk, čísla objednávek i urgentnost seděly u všech e-mailů, kt
 | Ruční test v n8n zapisoval skutečné řádky (duplicity) | Duplicity z testů odstraněny. Ve firmě bych testoval na kopii s testovací tabulkou |
 
 ## Bezpečnost a soukromí
-- API klíče a tokeny jsou uložené jen v n8n credentials. V repozitáři ani ve videu nejsou.
+- API klíče a tokeny jsou uložené jen v n8n credentials. V repozitáři nejsou.
 - K Gmailu a Google Sheets se n8n připojuje přes OAuth.
 - Slack bot má jediné oprávnění `chat:write` (princip nejmenších oprávnění).
 - E-mailová adresa zákazníka se do AI neposílá, protože není potřeba (minimalizace dat).
