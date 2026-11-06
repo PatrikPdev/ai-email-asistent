@@ -30,29 +30,6 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=Předmět: {{ $json.subject }}\n\nText e-mailu:\n{{ $json.text }}",
-        "hasOutputParser": true,
-        "messages": {
-          "messageValues": [
-            {
-              "message": "Jsi asistent zákaznické podpory e-shopu ArtRoll. E-shop prodává: - malování podle čísel, diamantové malování a obrazy z fotek, - rolety den a noc bez vrtání, sítě proti hmyzu a příslušenství. Zboží posíláme po celé Evropě, zákazníci píší v různých jazycích.  Tvůj úkol: analyzuj e-mail zákazníka a připrav návrh odpovědi, kterou pak zkontroluje a odešle člověk.  Pravidla pro analýzu: - \"jazyk\": dvoupísmenný kód jazyka, kterým zákazník píše (cs, sk, de, hu, en, ro, pl…). - \"kategorie\": přesně jedna z hodnot: \"reklamace\", \"stav_objednavky\", \"dotaz_k_produktu\", \"vraceni_zbozi\", \"pochvala\", \"spam\", \"jine\". - \"cislo_objednavky\": číslo objednávky, pokud je v e-mailu uvedené, jinak prázdný řetězec \"\". - \"nalada\": \"pozitivni\", \"neutralni\" nebo \"negativni\". - \"urgentni\": true, pokud jde o reklamaci poškozeného/vadného zboží, zákazník je výrazně naštvaný, hrozí špatnou recenzí nebo jde o opakovanou urgenci. Jinak false. - \"shrnuti_cz\": jedna krátká věta česky, co zákazník chce.  Pravidla pro odpověď: - Piš VŽDY ve stejném jazyce, jakým psal zákazník. - Buď vstřícný, stručný (max. 120 slov) a konkrétní. - NIKDY neslibuj vrácení peněz, slevu, výměnu ani termín doručení. Napiš, že věc prověříme a ozveme se. - Nevymýšlej si informace o stavu objednávky, cenách ani skladu. - U poškozeného zboží požádej o fotografii poškození a číslo objednávky (pokud chybí). - Když chybí číslo objednávky a je potřeba, slušně o něj požádej. - U spamu napiš do \"odpoved\" prázdný řetězec \"\". - Pokud zákazník uvedl jméno, oslov ho jím. - Podepiš se: \"Tým zákaznické podpory ArtRoll\" (v jazyce zákazníka). - \"predmet_odpovedi\": předmět v jazyce zákazníka, začínající \"Re: \" a původním předmětem.  Vrať POUZE data v požadovaném formátu, nic dalšího."
-            }
-          ]
-        },
-        "batching": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        224,
-        0
-      ],
-      "id": "db4824f6-8167-43da-ac60-b2a0f14ddc77",
-      "name": "Basic LLM Chain"
-    },
-    {
-      "parameters": {
         "model": {
           "__rl": true,
           "value": "claude-haiku-5-5",
@@ -78,12 +55,12 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n  \"jazyk\": \"de\",\n  \"kategorie\": \"reklamace\",\n  \"cislo_objednavky\": \"20261234\",\n  \"nalada\": \"negativni\",\n  \"urgentni\": true,\n  \"shrnuti_cz\": \"Zákazníkovi přišla poškozená roleta a chce řešení.\",\n  \"predmet_odpovedi\": \"Re: Rollo beschädigt\",\n  \"odpoved\": \"Guten Tag Herr Becker, vielen Dank für Ihre Nachricht ...\"\n}"
+        "jsonSchemaExample": "{\n  \"jazyk\": \"cs\",\n  \"kategorie\": \"stav_objednavky\",\n  \"cislo_objednavky\": \"20261187\",\n  \"stav_v_systemu\": \"odesláno 27. 10., Zásilkovna, Z4820173365\",\n  \"nalada\": \"neutralni\",\n  \"urgentni\": false,\n  \"shrnuti_cz\": \"Zákaznice se ptá, kdy dorazí její objednávka.\",\n  \"predmet_odpovedi\": \"Re: Kdy dorazí moje objednávka?\",\n  \"odpoved\": \"Dobrý den, paní Nováková, ...\"\n}"
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        368,
+        320,
         208
       ],
       "id": "9f62122b-a8f2-4b52-a017-4d97976275fd",
@@ -92,8 +69,8 @@
     {
       "parameters": {
         "resource": "draft",
-        "subject": "={{ $('Basic LLM Chain').item.json.output.predmet_odpovedi }}",
-        "message": "={{ $json.output.odpoved }}",
+        "subject": "={{ $('AI Agent').item.json.output.predmet_odpovedi }}",
+        "message": "={{ $('AI Agent').item.json.output.odpoved }}",
         "options": {
           "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
           "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}"
@@ -107,7 +84,6 @@
       ],
       "id": "3b8ca817-4d33-4894-b4ad-922ccff5e339",
       "name": "Create a draft",
-      "webhookId": "d2436234-25b2-413d-9f41-2acd0c5db43b",
       "credentials": {
         "gmailOAuth2": {
           "name": "Gmail account"
@@ -142,7 +118,8 @@
             "cislo_objednavky": "={{ $json.output.cislo_objednavky }}",
             "nalada": "={{ $json.output.nalada }}",
             "urgentni": "={{ $json.output.urgentni }}",
-            "shrnuti_cz": "={{ $json.output.shrnuti_cz }}"
+            "shrnuti_cz": "={{ $json.output.shrnuti_cz }}",
+            "stav_v_systemu": "={{ $json.output.stav_v_systemu }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -153,7 +130,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "odesilatel",
@@ -162,7 +140,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "predmet",
@@ -171,7 +150,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "jazyk",
@@ -180,7 +160,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "kategorie",
@@ -189,7 +170,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "cislo_objednavky",
@@ -198,7 +180,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "nalada",
@@ -207,7 +190,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "urgentni",
@@ -216,7 +200,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "shrnuti_cz",
@@ -225,7 +210,18 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "stav_v_systemu",
+              "displayName": "stav_v_systemu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -289,7 +285,7 @@
           "value": "YOUR_SLACK_CHANNEL_ID",
           "mode": "id"
         },
-        "text": "=🚨 Urgentní e-mail ({{ $json.output.jazyk }})\nKategorie: {{ $json.output.kategorie }}\nObjednávka: Objednávka: {{ $json.output.cislo_objednavky || 'neuvedena' }}\nShrnutí: {{ $json.output.shrnuti_cz }}",
+        "text": "=🚨 Urgentní e-mail ({{ $json.output.jazyk }})\nKategorie: {{ $json.output.kategorie }}\nObjednávka: {{ $json.output.cislo_objednavky || 'neuvedena' }}\nStav v systému: {{ $json.output.stav_v_systemu || 'neověřeno' }}\nShrnutí: {{ $json.output.shrnuti_cz }}",
         "otherOptions": {
           "includeLinkToWorkflow": false
         }
@@ -302,7 +298,6 @@
       ],
       "id": "db270eee-9226-48cf-a664-063044517ddf",
       "name": "Send a message",
-      "webhookId": "e513532d-a471-4d56-947b-75d5b5374aaf",
       "credentials": {
         "slackApi": {
           "name": "Slack account"
@@ -321,7 +316,7 @@
           "conditions": [
             {
               "id": "f28e34cf-f6f8-49e1-956c-d37db8a6aad7",
-              "leftValue": "={{ $('Basic LLM Chain').item.json.output.kategorie }}",
+              "leftValue": "={{ $('AI Agent').item.json.output.kategorie }}",
               "rightValue": "spam",
               "operator": {
                 "type": "string",
@@ -341,6 +336,66 @@
       ],
       "id": "8cd60b81-6477-4019-9cba-e05485c600e2",
       "name": "Filter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Předmět: {{ $json.subject }}\n\nText e-mailu:\n{{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Jsi AI agent zákaznické podpory e-shopu ArtRoll. E-shop prodává:\n- malování podle čísel, diamantové malování a obrazy z fotek,\n- rolety den a noc bez vrtání, sítě proti hmyzu a příslušenství.\nZboží posíláme po celé Evropě, zákazníci píší v různých jazycích.\n\nTvůj úkol: analyzuj e-mail zákazníka a připrav návrh odpovědi, kterou pak zkontroluje a odešle člověk.\n\nNástroj najdi_objednavku:\n- Pokud e-mail obsahuje číslo objednávky, VŽDY nejdřív zavolej nástroj najdi_objednavku s tímto číslem.\n- Pokud číslo objednávky v e-mailu není, nástroj nevolej.\n- V odpovědi použij jen údaje, které nástroj vrátil: produkt, stav, datum odeslání, dopravce, sledovací číslo. Nic dalšího si nedomýšlej.\n- Sloupec \"poznamka\" je INTERNÍ. Zákazníkovi ho nikdy necituj ani nepřeváděj do odpovědi; můžeš ho jen zmínit v \"shrnuti_cz\".\n- Když nástroj objednávku nenajde, napiš zákazníkovi, že objednávku prověříme.\n\nPravidla pro analýzu:\n- \"jazyk\": dvoupísmenný kód jazyka, kterým zákazník píše (cs, sk, de, hu, en, ro, pl…).\n- \"kategorie\": přesně jedna z hodnot: \"reklamace\", \"stav_objednavky\", \"dotaz_k_produktu\", \"vraceni_zbozi\", \"pochvala\", \"spam\", \"jine\".\n- \"spam\" = e-mail, který nepíše zákazník e-shopu: reklama a nabídky služeb (SEO, marketing), hromadné newslettery, automatická oznámení ze systémů (např. Slack, Google), podvodné e-maily (phishing). Když si nejsi jistý, zvol \"jine\", ne \"spam\".\n- \"cislo_objednavky\": číslo objednávky, pokud je v e-mailu uvedené, jinak prázdný řetězec \"\".\n- \"stav_v_systemu\": krátce česky, co vrátil nástroj (např. \"odesláno 27. 10., Zásilkovna, Z4820173365\"); \"nenalezeno\", pokud objednávka v systému není; \"\" pokud číslo objednávky chybí.\n- \"nalada\": \"pozitivni\", \"neutralni\" nebo \"negativni\".\n- \"urgentni\": true, pokud jde o reklamaci poškozeného/vadného zboží, zákazník je výrazně naštvaný, hrozí špatnou recenzí nebo jde o opakovanou urgenci. Jinak false.\n- \"shrnuti_cz\": jedna krátká věta česky, co zákazník chce.\n\nPravidla pro odpověď:\n- Piš VŽDY ve stejném jazyce, jakým psal zákazník.\n- Buď vstřícný, stručný (max. 120 slov) a konkrétní.\n- NIKDY neslibuj vrácení peněz, slevu, výměnu, změnu objednávky či adresy ani termín doručení či naskladnění. Fakta ze systému (např. datum odeslání, sledovací číslo) sdělit můžeš.\n- Nevymýšlej si informace o stavu objednávky, cenách ani skladu.\n- U poškozeného zboží požádej o fotografii poškození a číslo objednávky (pokud chybí).\n- Když chybí číslo objednávky a je potřeba, slušně o něj požádej.\n- U spamu napiš do \"odpoved\" prázdný řetězec \"\" a nástroj nevolej.\n- Pokud zákazník uvedl jméno, oslov ho jím.\n- Podepiš se: \"Tým zákaznické podpory ArtRoll\" (v jazyce zákazníka).\n- \"predmet_odpovedi\": předmět v jazyce zákazníka, začínající \"Re: \" a původním předmětem.\n\nVrať POUZE data v požadovaném formátu, nic dalšího.\n- Netvrď, že jsi něco předal, zařídil nebo změnil. Piš jen „prověříme a ozveme se“."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "3fd09f19-a6da-4ff3-b17f-9a035d037763",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Najde objednávku v systému e-shopu podle čísla objednávky. Vrátí produkt, stav, datum odeslání, dopravce, sledovací číslo a interní poznámku. Když objednávka neexistuje, nevrátí nic.",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Záznické emaily přehled",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 252087808,
+          "mode": "list",
+          "cachedResultName": "objednavky",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=252087808"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "cislo_objednavky",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        304
+      ],
+      "id": "2aa6df89-bda6-4e95-bce8-c8006b0316e4",
+      "name": "najdi_objednavku",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -349,7 +404,7 @@
       "main": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "AI Agent",
             "type": "main",
             "index": 0
           }
@@ -360,7 +415,7 @@
       "ai_languageModel": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "AI Agent",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -371,24 +426,8 @@
       "ai_outputParser": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "AI Agent",
             "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Basic LLM Chain": {
-      "main": [
-        [
-          {
-            "node": "Append row in sheet",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If",
-            "type": "main",
             "index": 0
           }
         ]
@@ -426,6 +465,33 @@
           }
         ]
       ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "najdi_objednavku": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -437,7 +503,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "2479f107-3fff-4023-9523-fa0817c96790",
+  "versionId": "ced3b7b8-20df-49a1-ab02-e40c82075980",
   "meta": {
     "templateCredsSetupCompleted": true
   },
